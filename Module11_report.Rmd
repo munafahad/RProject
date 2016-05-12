@@ -1,5 +1,5 @@
 ---
-title: "Module11_report"
+title: "Module11_Homework"
 output: html_document
 ---
 
@@ -7,22 +7,65 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Homework 10
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+**In this homework, you need to create two working functions that will help you with your data analysis.**  
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+### Solution
 
-```{r cars}
-summary(cars)
+#### 1. Find Path Function
+
+```{r, eval=FALSE}
+findPathFunction.N <- function(startStation, endStation) {
+    path <- startStation
+    
+    while(startStation != endStation) {
+        for (i in 1:nrow(stations.N))
+        {
+            if(startStation == stations.N$stationid[i] ) {
+                
+                startStation <- stations.N$downstream[i]
+                path <- rbind(path, stations.N$downstream[i])
+                
+                if(stations.N$downstream[i] == 0) {	
+                	break	
+                } 
+            } 
+        } 
+    }			
+    return(path)
+}
 ```
 
-## Including Plots
+ This function is used to find a path between two stations in __North__ direction.\  
+ You just need to get two stations from _stations.N_ dataset and then call the function with these two station Ids. 
+ 
+ **Example:**  _findPathFunction.N(1045,1140)_  
+ 
+ 
+ 
 
-You can also embed plots, for example:
+#### 2. Generate a Speed List for Loop 1350
+```{r, eval=FALSE}
+speedFunc <- function(na.rm = FALSE) {
+	speedList <- 0
+	for (i in 1:nrow(loop.1350)) {
+		
+		if (na.rm == TRUE) {
+			if(!is.na(loop.1350$speed[i])){
+				speedList <- rbind(speedList, loop.1350$speed[i])
+			}
+		} else {
+			speedList <- rbind(speedList, loop.1350$speed[i])
+		}	
+	}
+	return(speedList)
+}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+ This function is used to get a speed list for data in _loop.1350_ dataset.  
+ 
+ **Function call:**  _speedFunc(na.rm=TRUE)_  
+
