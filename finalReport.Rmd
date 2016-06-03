@@ -239,23 +239,27 @@ names(loops.volume.intermed)[3]<-"detectorid"
 names(loops.volume.intermed)[4]<-"locationtext"
 names(loops.volume.intermed)[5]<-"volume"
 
+#Add weekday column to table2
+loops.volume.intermed$weekday<-weekdays(loops.volume.intermed$date)
+ 
+
 #table3: This table is used to store the final result
 #The mean/avg between 7:00 am and 9:00 am
-loops.79am.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, locationtext, volume) %>%  group_by(date, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
+loops.79am.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, weekday, locationtext, volume) %>%  group_by(date,locationtext, weekday)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
 names(loops.79am.volume.avg)[1]<-"date"
 names(loops.79am.volume.avg)[2]<-"locationtext"
 names(loops.79am.volume.avg)[3]<-"Avg.volume"
 
 #table4: This table is used to store the final result
 #The mean/avg between 4:00 pm and 6:00 pm
-loops.46pm.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, locationtext, volume) %>%  group_by(date, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
+loops.46pm.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, weekday, locationtext, volume) %>%  group_by(date, locationtext ,weekday)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
 names(loops.46pm.volume.avg)[1]<-"date"
 names(loops.46pm.volume.avg)[2]<-"locationtext"
 names(loops.46pm.volume.avg)[3]<-"Avg.volume"
 
 #table5: This table is used to store the final result
 #The ds between 7:00 am and 9:00 am
-loops.79am.volume.sd <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, locationtext, volume) %>%  group_by(date, locationtext)  %>%  summarize(sd.volume=sd(volume)) %>% arrange(date)
+loops.79am.volume.sd <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, weekday, locationtext, volume) %>%  group_by(date, locationtext, weekday)  %>%  summarize(sd.volume=sd(volume)) %>% arrange(date)
 names(loops.79am.volume.sd)[1]<-"date"
 names(loops.79am.volume.sd)[2]<-"locationtext"
 names(loops.79am.volume.sd)[3]<-"sd.volume"
@@ -263,10 +267,16 @@ names(loops.79am.volume.sd)[3]<-"sd.volume"
 
 #table6: This table is used to store the final result
 #The ds between 4:00 pm and 6:00 pm
-loops.46pm.volume.sd <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, locationtext, volume) %>%  group_by(date, locationtext)  %>%  summarize(sd.volume=sd(volume)) %>% arrange(date)
+loops.46pm.volume.sd <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, weekday, locationtext, volume) %>%  group_by(date, locationtext, weekday)  %>%  summarize(sd.volume=sd(volume)) %>% arrange(date)
 names(loops.46pm.volume.sd)[1]<-"date"
 names(loops.46pm.volume.sd)[2]<-"locationtext"
 names(loops.46pm.volume.sd)[3]<-"sd.volume"
+
+
+########
+#######
+#####
+I need to create 2 plots for each of the last tables (one for weekend and the other one for other date)
 
 ```
 
