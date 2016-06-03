@@ -241,19 +241,32 @@ names(loops.volume.intermed)[5]<-"volume"
 
 #table3: This table is used to store the final result
 #The mean/avg between 7:00 am and 9:00 am
-loops.79am.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, detectorid, locationtext, volume) %>%  group_by(date, detectorid, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
+loops.79am.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, locationtext, volume) %>%  group_by(date, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
 names(loops.79am.volume.avg)[1]<-"date"
-names(loops.79am.volume.avg)[2]<-"detectorid"
-names(loops.79am.volume.avg)[3]<-"locationtext"
-names(loops.79am.volume.avg)[4]<-"Avg.volume"
+names(loops.79am.volume.avg)[2]<-"locationtext"
+names(loops.79am.volume.avg)[3]<-"Avg.volume"
 
 #table4: This table is used to store the final result
 #The mean/avg between 4:00 pm and 6:00 pm
-loops.46pm.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, detectorid, locationtext, volume) %>%  group_by(date, detectorid, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
+loops.46pm.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, locationtext, volume) %>%  group_by(date, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
 names(loops.46pm.volume.avg)[1]<-"date"
-names(loops.46pm.volume.avg)[2]<-"detectorid"
-names(loops.46pm.volume.avg)[3]<-"locationtext"
-names(loops.46pm.volume.avg)[4]<-"Avg.volume"
+names(loops.46pm.volume.avg)[2]<-"locationtext"
+names(loops.46pm.volume.avg)[3]<-"Avg.volume"
+
+#table5: This table is used to store the final result
+#The ds between 7:00 am and 9:00 am
+loops.79am.volume.sd <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, locationtext, volume) %>%  group_by(date, locationtext)  %>%  summarize(sd.volume=sd(volume)) %>% arrange(date)
+names(loops.79am.volume.sd)[1]<-"date"
+names(loops.79am.volume.sd)[2]<-"locationtext"
+names(loops.79am.volume.sd)[3]<-"sd.volume"
+
+
+#table6: This table is used to store the final result
+#The ds between 4:00 pm and 6:00 pm
+loops.46pm.volume.sd <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, locationtext, volume) %>%  group_by(date, locationtext)  %>%  summarize(sd.volume=sd(volume)) %>% arrange(date)
+names(loops.46pm.volume.sd)[1]<-"date"
+names(loops.46pm.volume.sd)[2]<-"locationtext"
+names(loops.46pm.volume.sd)[3]<-"sd.volume"
 
 ```
 
@@ -269,7 +282,9 @@ The first plot is for 7:00 am to 9:00 am, and the second one is for 4:00 pm to 6
 ![](46pm.png)
 
 
-It can clearly be seen that the average volume for 7:00 am to 9:00 am is about 33.3% between 0 and 400, 33.3% between 400 and 800, and 33.3% between 800 and 1300. Moreover, the volume sometimes exceeds the 1300.
+It can clearly be seen that there is no major differences in the volume during the period mentioned above. 
+
+The average volume for 7:00 am to 9:00 am is about 33.3% between 0 and 400, 33.3% between 400 and 800, and 33.3% between 800 and 1300. Moreover, the volume sometimes exceeds the 1300.
 
 The average volume for 4:00 pm to 6:00 pm is about 33.3% between 0 and 700 and about 66.7% between 700 and 1400.
 
