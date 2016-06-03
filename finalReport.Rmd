@@ -99,44 +99,8 @@ loop.1346[is.na(loop.1346)]<-0
 loop.1347[is.na(loop.1347)]<-0
 loop.1348[is.na(loop.1348)]<-0
 loop.1350[is.na(loop.1350)]<-0
-######### JOIN #########
-loops.detectors.join <- full_join(loops.sub, detectors, by="detectorid")
 
-loops.detectors <- subset(loops.detectors.join, select=c(detectorid, starttime, locationtext, volume, speed))
 
-#table1: this table extracts some columns from loops.joins and summorize th volume by date
-loops.volume<-aggregate(loops.detectors$volume,by=list(loops.detectors$detectorid, as.POSIXct(loops.detectors$starttime, format="%m/%d/%y %H"), loops.detectors$locationtext),sum)
-names(loops.volume)[1]<-"detectorid"
-names(loops.volume)[2]<-"starttime"
-names(loops.volume)[3]<-"locationtext"
-names(loops.volume)[4]<-"volume"
-
-#table2: this table is used to store an intermediate result
-#it splits the "starttime" column in loops.volume into two columns (date and time)
-loops.volume.intermed<-aggregate(loops.volume$volume,by=list(as.Date(loops.volume$starttime, format="%m/%d/%y"), strftime(loops.volume$starttime, format="%H"), loops.volume$detectorid, loops.volume$locationtext),sum)
-names(loops.volume.intermed)[1]<-"date"
-names(loops.volume.intermed)[2]<-"time"
-names(loops.volume.intermed)[3]<-"detectorid"
-names(loops.volume.intermed)[4]<-"locationtext"
-names(loops.volume.intermed)[5]<-"volume"
-
-#table3: This table is used to store the final result
-#The mean/avg between 7:00 am and 9:00 am
-loops.79am.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10 ) %>% select(date, time, detectorid, locationtext, volume) %>%  group_by(date, detectorid, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
-names(loops.79am.volume.avg)[1]<-"date"
-names(loops.79am.volume.avg)[2]<-"detectorid"
-names(loops.79am.volume.avg)[3]<-"locationtext"
-names(loops.79am.volume.avg)[4]<-"Avg.volume"
-
-#table4: This table is used to store the final result
-#The mean/avg between 4:00 pm and 6:00 pm
-loops.46pm.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, detectorid, locationtext, volume) %>%  group_by(date, detectorid, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
-names(loops.46pm.volume.avg)[1]<-"date"
-names(loops.46pm.volume.avg)[2]<-"detectorid"
-names(loops.46pm.volume.avg)[3]<-"locationtext"
-names(loops.46pm.volume.avg)[4]<-"Avg.volume"
-
-######### JOIN #########
 #########
 #In the following three tables, we are computing the Peak Period volume 
 #for detector 1345 which is loacted in Sunnyside NB
@@ -193,8 +157,6 @@ names(loop1345.volume)[2]<-"volume"
 ```
 
 
-
-
    
 ## Loops' Volume Summary, Max Speed, and Ave Speed
 
@@ -205,8 +167,8 @@ __For example:__
 
 This plot shows the volume in loop 1345:
 
-
 ![](loop1345V.jpeg)
+
 
 
 And this histogram represents the frequency of the volume:
@@ -276,6 +238,83 @@ p<- ggplot(ggplot.data, aes(x=xdat, y=ydat)) + geom_line()
 print(p)
 # A plot for Loop 1345 Volume
 qplot(date, sum_volume, data = loop.1345.volume.sum)
+```
+
+## Finding the Volume in a Specific Location
+The collected data is related mainly to the detectors that located in _Sunnyside NB_, which includes these detectors: 1345, 1345, 1346, 1347, and 1348. Using the datasets and subsets we have, we can represents the volume in the period Sept. 15, 2011 through Nov. 15, 2011.
+
+### Methodology 
+In order to know all the detectors that located in _Sunnyside NB_, we first need to join loops and detectors data. This can be done by prforming a full join on _detectorid_ column that exists in both tables. 
+
+The resulted relation can be filtered to get the needed columns only, which are: detectorid, starttime, locationtext, and volume. In order to deal with the time, the starttime column needs to be splitted and stored as a new result. 
+
+To get the _Peak Period Volume_, we can use the last result data to get the volume for 7:00am to 9:00am, and for 4:00pm to 6:00pm.
+
+
+```{r loopsAndDetectors, echo=FALSE, eval=FALSE}
+####### Sunnyside NB - Detector id: 1345, 1346, 1347 and 1348 #####
+loops.detectors.join <- full_join(loops.sub, detectors, by="detectorid")
+
+loops.detectors <- subset(loops.detectors.join, select=c(detectorid, starttime, locationtext, volume, speed))
+
+#table1: this table extracts some columns from loops.joins and summorize th volume by date
+loops.volume<-aggregate(loops.detectors$volume,by=list(loops.detectors$detectorid, as.POSIXct(loops.detectors$starttime, format="%m/%d/%y %H"), loops.detectors$locationtext),sum)
+names(loops.volume)[1]<-"detectorid"
+names(loops.volume)[2]<-"starttime"
+names(loops.volume)[3]<-"locationtext"
+names(loops.volume)[4]<-"volume"
+
+#table2: this table is used to store an intermediate result
+#it splits the "starttime" column in loops.volume into two columns (date and time)
+loops.volume.intermed<-aggregate(loops.volume$volume,by=list(as.Date(loops.volume$starttime, format="%m/%d/%y"), strftime(loops.volume$starttime, format="%H"), loops.volume$detectorid, loops.volume$locationtext),sum)
+names(loops.volume.intermed)[1]<-"date"
+names(loops.volume.intermed)[2]<-"time"
+names(loops.volume.intermed)[3]<-"detectorid"
+names(loops.volume.intermed)[4]<-"locationtext"
+names(loops.volume.intermed)[5]<-"volume"
+
+#table3: This table is used to store the final result
+#The mean/avg between 7:00 am and 9:00 am
+loops.79am.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, detectorid, locationtext, volume) %>%  group_by(date, detectorid, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
+names(loops.79am.volume.avg)[1]<-"date"
+names(loops.79am.volume.avg)[2]<-"detectorid"
+names(loops.79am.volume.avg)[3]<-"locationtext"
+names(loops.79am.volume.avg)[4]<-"Avg.volume"
+
+#table4: This table is used to store the final result
+#The mean/avg between 4:00 pm and 6:00 pm
+loops.46pm.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, detectorid, locationtext, volume) %>%  group_by(date, detectorid, locationtext)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
+names(loops.46pm.volume.avg)[1]<-"date"
+names(loops.46pm.volume.avg)[2]<-"detectorid"
+names(loops.46pm.volume.avg)[3]<-"locationtext"
+names(loops.46pm.volume.avg)[4]<-"Avg.volume"
+
+######### JOIN #########
+
+```
+
+
+### Result
+
+The following two plots shows the _Peak Period Volume_ in _Sunnyside NB_, using average volume. 
+
+The first plot is for 7:00 am to 9:00 am, and the second one is for 4:00 pm to 6:00 pm.
+
+![](79am.png)
+
+![](46pm.png)
+
+
+It can clearly be seen that the average volume for 7:00 am to 9:00 am is about 33.3% between 0 and 400, 33.3% between 400 and 800, and 33.3% between 800 and 1300. Moreover, the volume sometimes exceeds the 1300.
+
+The average volume for 4:00 pm to 6:00 pm is about 33.3% between 0 and 700 and about 66.7% between 700 and 1400.
+
+
+
+```{r plot, echo=FALSE, eval=FALSE}
+#plots
+plot(loops.79am.volume.avg$date, loops.79am.volume.avg$Avg.volume, main = "Sunnyside NB Volume - 7:00-9:00 am", xlab = "Date", ylab= "Avg(Volume)", col="blue")
+plot(loops.46pm.volume.avg$date, loops.46pm.volume.avg$Avg.volume, main = "Sunnyside NB Volume - 4:00-6:00 pm", xlab = "Date", ylab= "Avg(Volume)", col="blue")
 ```
 
 
