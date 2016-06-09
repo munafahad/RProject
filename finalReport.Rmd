@@ -207,14 +207,14 @@ qplot(date, sum_volume, data = loop.1345.volume.sum)
 ```
 
 ## Finding the Volume in a Specific Location
-The collected data is related mainly to the detectors that located in _Sunnyside NB_, which includes these detectors: 1345, 1345, 1346, 1347, and 1348. Using the datasets and subsets we have, we can represents the volume in the period Sept. 15, 2011 through Nov. 15, 2011.
+The collected data is related mainly to the detectors that located in _Sunnyside NB_, which includes these detectors: 1345, 1345, 1346, 1347, and 1348. Using the datasets and subsets we have, we can represents the volume in the period Sept. 15, 2011 through Nov. 15, 2011 by studying the volume during the weekdays and weekends plots/results.
 
 ### Methodology 
 In order to know all the detectors that located in _Sunnyside NB_, we first need to join loops and detectors data. This can be done by prforming a full join on _detectorid_ column that exists in both tables. 
 
 The resulted relation can be filtered to get the needed columns only, which are: detectorid, starttime, locationtext, and volume. In order to deal with the time, the starttime column needs to be splitted and stored as a new result. 
 
-To get the _Peak Period Volume_, we can use the last result data to get the volume for 7:00am to 9:00am, and for 4:00pm to 6:00pm.
+To get the _Peak Period Volume_, we can use the last result data to get the volume for 7:00am to 9:00am, and for 4:00pm to 6:00pm. Weekday column can be added to get more details that can help with the data.
 
 
 ```{r loopsAndDetectors, echo=FALSE, eval=FALSE}
@@ -246,38 +246,20 @@ loops.volume.intermed$weekday<-weekdays(loops.volume.intermed$date)
 #table3: This table is used to store the final result
 #The mean/avg between 7:00 am and 9:00 am
 loops.79am.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, weekday, locationtext, volume) %>%  group_by(date,locationtext, weekday)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
-names(loops.79am.volume.avg)[1]<-"date"
-names(loops.79am.volume.avg)[2]<-"locationtext"
-names(loops.79am.volume.avg)[3]<-"Avg.volume"
+
 
 #table4: This table is used to store the final result
 #The mean/avg between 4:00 pm and 6:00 pm
 loops.46pm.volume.avg <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, weekday, locationtext, volume) %>%  group_by(date, locationtext ,weekday)  %>%  summarize(Avg.volume=mean(volume)) %>% arrange(date)
-names(loops.46pm.volume.avg)[1]<-"date"
-names(loops.46pm.volume.avg)[2]<-"locationtext"
-names(loops.46pm.volume.avg)[3]<-"Avg.volume"
 
-#table5: This table is used to store the final result
-#The ds between 7:00 am and 9:00 am
-loops.79am.volume.sd <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 06 & as.numeric(loops.volume.intermed$time) < 10) %>% select(date, time, weekday, locationtext, volume) %>%  group_by(date, locationtext, weekday)  %>%  summarize(sd.volume=sd(volume)) %>% arrange(date)
-names(loops.79am.volume.sd)[1]<-"date"
-names(loops.79am.volume.sd)[2]<-"locationtext"
-names(loops.79am.volume.sd)[3]<-"sd.volume"
+#Subset the tables to split weekday from weekend data
+loops.79am.volume.avg.weekday<- subset(loops.79am.volume.avg, loops.79am.volume.avg$weekday %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"))
 
+loops.79am.volume.avg.weekend<- subset(loops.79am.volume.avg, loops.79am.volume.avg$weekday %in% c("Saturday", "Sunday"))
 
-#table6: This table is used to store the final result
-#The ds between 4:00 pm and 6:00 pm
-loops.46pm.volume.sd <- loops.volume.intermed %>% filter(as.numeric(loops.volume.intermed$time) > 15 & as.numeric(loops.volume.intermed$time) < 19 ) %>% select(date, time, weekday, locationtext, volume) %>%  group_by(date, locationtext, weekday)  %>%  summarize(sd.volume=sd(volume)) %>% arrange(date)
-names(loops.46pm.volume.sd)[1]<-"date"
-names(loops.46pm.volume.sd)[2]<-"locationtext"
-names(loops.46pm.volume.sd)[3]<-"sd.volume"
+loops.46pm.volume.avg.weekday<- subset(loops.46pm.volume.avg, loops.46pm.volume.avg$weekday %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"))
 
-
-########
-#######
-#####
-I need to create 2 plots for each of the last tables (one for weekend and the other one for other date)
-
+loops.46pm.volume.avg.weekend<- subset(loops.46pm.volume.avg, loops.46pm.volume.avg$weekday %in% c("Saturday", "Sunday"))
 ```
 
 
@@ -285,25 +267,28 @@ I need to create 2 plots for each of the last tables (one for weekend and the ot
 
 The following two plots shows the _Peak Period Volume_ in _Sunnyside NB_, using average volume. 
 
-The first plot is for 7:00 am to 9:00 am, and the second one is for 4:00 pm to 6:00 pm.
+The first two plots are for 7:00 am to 9:00 am, and the second two are for 4:00 pm to 6:00 pm.
 
-![](79am.png)
+![](79am_weekday.png)
 
-![](46pm.png)
+![](79am_weekend.png)
 
+![](46pm_weekday.png)
 
-It can clearly be seen that there is no major differences in the volume during the period mentioned above. 
-
-The average volume for 7:00 am to 9:00 am is about 33.3% between 0 and 400, 33.3% between 400 and 800, and 33.3% between 800 and 1300. Moreover, the volume sometimes exceeds the 1300.
-
-The average volume for 4:00 pm to 6:00 pm is about 33.3% between 0 and 700 and about 66.7% between 700 and 1400.
+![](46pm_weekend.png)
 
 
+The average volume for 7:00 am to 9:00 am in the weekdays is between 700 and 900. This range drop to the half in the weekends. However the average volume for 4:00 pm to 6:00 pm is between 700 and 900 in the weekdays and weekends too.
 
 ```{r plot, echo=FALSE, eval=FALSE}
 #plots
-plot(loops.79am.volume.avg$date, loops.79am.volume.avg$Avg.volume, main = "Sunnyside NB Volume - 7:00-9:00 am", xlab = "Date", ylab= "Avg(Volume)", col="blue")
-plot(loops.46pm.volume.avg$date, loops.46pm.volume.avg$Avg.volume, main = "Sunnyside NB Volume - 4:00-6:00 pm", xlab = "Date", ylab= "Avg(Volume)", col="blue")
+plot(loops.79am.volume.avg.weekday$date, loops.79am.volume.avg.weekday$Avg.volume, main = "Sunnyside NB Volume - Weekday:7-9 am", xlab = "Date", ylab= "Avg(Volume)", col="blue")
+
+plot(loops.79am.volume.avg.weekend$date, loops.79am.volume.avg.weekend$Avg.volume, main = "Sunnyside NB Volume - Weekend:7-9 am", xlab = "Date", ylab= "Avg(Volume)", col="blue")
+
+plot(loops.46pm.volume.avg.weekday$date, loops.46pm.volume.avg.weekday$Avg.volume, main = "Sunnyside NB Volume - Weekday:4-6 pm", xlab = "Date", ylab= "Avg(Volume)", col="blue")
+
+plot(loops.46pm.volume.avg.weekend$date, loops.46pm.volume.avg.weekend$Avg.volume, main = "Sunnyside NB Volume - Weekend:4-6 pm", xlab = "Date", ylab= "Avg(Volume)", col="blue")
 ```
 
 
